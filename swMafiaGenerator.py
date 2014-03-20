@@ -1,4 +1,5 @@
-from sets import Set
+from starWarsMafiaGameState import StarWarsMafiaGameState as GameState
+from starWarsMafiaGameState import StarWarsSets as swSets
 
 class StarWarsPathEvaluator():
     '''
@@ -16,33 +17,8 @@ class StarWarsPathEvaluator():
         TODO track EV
     '''
 
-    good = Set(['ewok', 'obi', 'laya', 'han', 'ackbar', 'yoda', 'luke', 'bathan'])
-    bad = Set(['bounty', 'storm', 'probe', 'ev'])
-    sith = Set(['emperor', 'darth'])
-
-    eaters = Set(['chewbacca', 'rancor'])
-    shooters = Set(['han', 'bounty'])
-    nightKillers = sith.union(Set(['luke', 'bathan']))
-
     @staticmethod
-    def endConditions(playList):
-        '''
-            If 'Good' wins: positive
-            If 'Bad' wins: negative
-            0 for stalemate
-            None if the game is still going
-        '''
-        if (playList == None or len(playList) == 0):
-            return 0
-        if (len(StarWarsPathEvaluator.sith.intersection(playList)) == 0):
-            return len(StarWarsPathEvaluator.good.intersection(playList))
-        else:
-            if (len(StarWarsPathEvaluator.good.intersection(playList)) == 0):
-                return -1
-        return None
-
-    @staticmethod
-    def dayCycle(playList):
+    def dayCycle(state):
         '''
             Evaluats possible dayTimeResults
             Returns a list of one of two results:
@@ -56,14 +32,14 @@ class StarWarsPathEvaluator():
                 Shooters
                 EV
         '''
-        currentGameState = StarWarsPathEvaluator.endConditions(playList)
+        currentGameState = state.evaluateEndConditions()
         if (currentGameState is not None):
-            return [currentGameState]
+            return [state]
 
-        possibleOutcomes = []
-        for player in playList:
-            postTrialList = [x for x in playList if x != player]
-            if (player not in StarWarsPathEvaluator.shooters):
+        possibleOutcomes = [state.players]
+        for player in state.players:
+            postTrialList = [x for x in state.players if x != player]
+            if (player not in swSets.shooters):
                 possibleOutcomes += [postTrialList]
             else:
                 for shotPlayer in postTrialList:
@@ -72,10 +48,10 @@ class StarWarsPathEvaluator():
         print ">>"
         print possibleOutcomes
         print "<<"
-        livingEaters = StarWarsPathEvaluator.eaters.intersection(playList)
+        livingEaters = swSets.eaters.intersection(state.players)
         for eater in livingEaters:
-            playersWithoutEater = [x for x in playList if x != eater]
+            playersWithoutEater = [x for x in state.players if x != eater]
             for player in playersWithoutEater:
-                possibleOutcomes += [[x for x in playList if x != player]]
+                possibleOutcomes += [[x for x in state.players if x != player]]
 
         return possibleOutcomes
