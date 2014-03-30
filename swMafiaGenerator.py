@@ -4,6 +4,26 @@ from itertools import chain, combinations, permutations
 from sets import Set
 import math
 
+def bettererPrint(gameStateList):
+    occurencesSum = sum(y.occurences for y in gameStateList)
+    good = []
+    bad = []
+    evaluating = []
+    draw = []
+    for x in gameStateList:
+        if x.winState > 0:
+            good.append(x.occurences)
+        elif x.winState < 0:
+            bad.append(x.occurences)
+        elif x.winState == 0:
+            draw.append(x.occurences)
+        elif x.winState == None:
+            evaluating.append(x.occurences)
+    print "Good: {0}".format(sum(good)/1.0/sum(x.occurences for x in gameStateList))
+    print "Bad: {0}".format(sum(bad)/1.0/sum(x.occurences for x in gameStateList))
+    print "Draw: {0}".format(sum(draw)/1.0/sum(x.occurences for x in gameStateList))
+    print "Evaluating: {0}".format(sum(evaluating)/1.0/sum(x.occurences for x in gameStateList))
+
 def betterPrint(gameStateList):
     occSum = sum(y.occurences for y in gameStateList)
     for x in gameStateList:
@@ -171,6 +191,9 @@ class StarWarsPathEvaluator():
                 currentRemainingGameStates += dayResults[1]
             currentRemainingGameStates = reduceStates(currentRemainingGameStates)
             finishedGames = reduceStates(finishedGames)
+            if verbose:
+                for x in currentRemainingGameStates:
+                    print x
         return finishedGames
 
     @staticmethod
