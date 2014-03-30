@@ -2,6 +2,7 @@ from starWarsMafiaGameState import StarWarsMafiaGameState as GameState
 from starWarsMafiaGameState import StarWarsSets as swSets
 from itertools import chain, combinations, permutations
 from sets import Set
+import math
 
 import traceback
 
@@ -117,14 +118,44 @@ class StarWarsPathEvaluator():
             yield list(permutations(subset))
 
     @staticmethod
-    def run(playerList):
+    def run(playerList, precision = 4, verbose = False):
+        def preciseEnough(list1, list2, precision):
+            if type(precision) != int:
+                raise TypeError("{0} was of incorrect type. Was {1}, expected {2}", precision.__name__, precision.__class__, int)
+            if precision < 0:
+                raise ValueError("precision must be non-negative.")
+            if len(list1) > 0 and type(list1[0]) != int and type(list1[0]) != long:
+                raise TypeError("list1 must be a list of type {0}, not {1}".format(int.__name__, list1[0].__class__.__name__))
+            if len(list2) > 0 and type(list2[0]) != int and type(list2[0]) != long:
+                raise TypeError("list2 must be a list of type {0}, not {1}".format(int.__name__, list2[0].__class__.__name__))
+            if len(list1) != len(list2):
+                return False
+            if len(list1) == 0:
+                return False
+            sum1 = sum(list1)
+            sum2 = sum(list2)
+            formattedList1 = [x/1.0/sum1 for x in list1]
+            formattedList2 = [x/1.0/sum2 for x in list2]
+            for x in xrange(len(list1)):
+                if math.floor(formattedList1[x]*10**precision) != math.floor(formattedList2[x]*10**precision):
+                    if verbose:
+                        print "Precision at position {0} doesn't match. {1} != {2}".format(x, formattedList1[x], formattedList2[x])
+                        print "Precision", precision
+                        print "{0} != {1}".format(math.floor(formattedList1[x]*10**precision), math.floor(formattedList2[x]*10**precision))
+                        print [x for x in formattedList1]
+                        print [x for x in formattedList2]
+                    return False
+            if verbose:
+                print [x for x in formattedList1]
+                print [x for x in formattedList2]
+            return True
         gameState = GameState(playerList)
         currentRemainingGameStates = [gameState]
         finishedGames = []
-        fooCount = 0
-        maxRuns = 40
-        while (len(currentRemainingGameStates) > 0 and fooCount < maxRuns):
-            fooCount += 1
+        previousSetOfGameSTates = []
+        while len(currentRemainingGameStates) > 0 and\
+               not preciseEnough([x.occurences for x in currentRemainingGameStates], [x.occurences for x in previousSetOfGameSTates], precision):
+            previousSetOfGameSTates = currentRemainingGameStates
             remainingGames = []
             for game in currentRemainingGameStates:
                 nightResults = StarWarsPathEvaluator.nightCycle(game)
@@ -137,9 +168,6 @@ class StarWarsPathEvaluator():
                 currentRemainingGameStates += dayResults[1]
             currentRemainingGameStates = reduceStates(currentRemainingGameStates)
             finishedGames = reduceStates(finishedGames)
-            
-        if fooCount == maxRuns:
-            print "You have reached the max number of rounds"
         return finishedGames
 
     @staticmethod
