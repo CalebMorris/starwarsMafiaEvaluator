@@ -4,7 +4,10 @@ from itertools import chain, combinations, permutations
 from sets import Set
 import math
 
-import traceback
+def betterPrint(gameStateList):
+    occSum = sum(y.occurences for y in gameStateList)
+    for x in gameStateList:
+        print x.__str__(occSum)
 
 def unzip(l, func):
     '''

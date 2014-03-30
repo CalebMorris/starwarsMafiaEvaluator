@@ -60,8 +60,8 @@ class StarWarsMafiaGameState():
         return self.players == other.players and self.killerStates == other.killerStates and\
                self.protectedPlayer == other.protectedPlayer and self.playersToDie == other.playersToDie
 
-    def __str__(self):
-        return "{0} {1} {2} {3} {4} {5} {6}".format(self.occurences, self.players, self.killerStates, self.winState, self.playersToDie, self.protectedPlayer, self.isOver, self.resurectStorm)
+    def __str__(self, totalOccurences=1):
+        return "{0} {1} {2} {3} {4} {5} {6}".format(self.occurences/1.0/totalOccurences, self.players, self.killerStates, self.winState, self.playersToDie, self.protectedPlayer, self.isOver, self.resurectStorm)
 
     def evaluateEndConditions(self):
         '''
